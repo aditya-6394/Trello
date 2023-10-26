@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useState } from "react";
 import axios from "axios";
 
 const TOKEN = import.meta.env.VITE_TOKEN;
@@ -7,7 +7,7 @@ const KEY = import.meta.env.VITE_API_KEY;
 const ChecklistContext = createContext();
 
 function ChecklistContextProvider({ children }) {
-  const [checklists, setChecklists] = useState({}); // Store checklists as an object
+  const [checklists, setChecklists] = useState({});
 
   // Function to fetch checklists for a specific card
   const fetchChecklists = async (cardId) => {
@@ -18,7 +18,7 @@ function ChecklistContextProvider({ children }) {
 
       setChecklists((prevChecklists) => ({
         ...prevChecklists,
-        [cardId]: response.data, // Store checklists using the cardId as a key
+        [cardId]: response.data,
       }));
     } catch (error) {
       console.error("Error fetching checklists:", error);
@@ -39,7 +39,7 @@ function ChecklistContextProvider({ children }) {
       const newChecklist = response.data;
       setChecklists((prevChecklists) => ({
         ...prevChecklists,
-        [cardId]: [...(prevChecklists[cardId] || []), newChecklist], // Add the new checklist to the card's checklist array
+        [cardId]: [...(prevChecklists[cardId] || []), newChecklist],
       }));
     } catch (error) {
       console.error("Error creating checklist:", error);

@@ -63,6 +63,14 @@ function CheckItemsContextProvider({ children }) {
     }
   };
 
+  // Function to Update a CheckItem using BoardId and checkItemID
+
+  const updateCheckItem = async (boardId, idCheckItem, state) => {
+    const response = axios.put(
+      `https://api.trello.com/1/cards/${boardId}/checkItem/${idCheckItem}?key=${KEY}&token=${TOKEN}&state=${state}`
+    );
+  };
+
   const values = {
     checkItems,
     fetchCheckItems,

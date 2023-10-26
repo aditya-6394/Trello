@@ -16,7 +16,7 @@ function ChecklistModal({ cardId, isOpen, onClose }) {
     if (isOpen) {
       fetchChecklists(cardId);
     }
-  }, [cardId, isOpen, fetchChecklists]);
+  }, [cardId, isOpen]);
 
   const openPopover = (event) => {
     setAnchorEl(event.currentTarget);
@@ -36,6 +36,7 @@ function ChecklistModal({ cardId, isOpen, onClose }) {
       <ShowChecklist
         checklists={cardChecklists}
         deleteChecklistById={deleteChecklistById}
+        cardId={cardId}
       />
       <Button onClick={openPopover}>Add Checklist</Button>
       <ChecklistPopover
