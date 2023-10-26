@@ -2,7 +2,8 @@ import React, { useContext, useEffect, useState } from "react";
 import { ChecklistContext } from "./ChecklistContextProvider";
 import { Dialog, DialogTitle, Button } from "@mui/material";
 import ChecklistPopover from "./CreateChecklistPopover";
-import ShowChecklist from "./ShowChecklist";
+// import ShowChecklist from "./ShowChecklist";
+import ShowAllChecklist from "./ShowAllChecklists";
 
 function ChecklistModal({ cardId, isOpen, onClose }) {
   const { checklists, fetchChecklists, createChecklist, deleteChecklistById } =
@@ -33,7 +34,7 @@ function ChecklistModal({ cardId, isOpen, onClose }) {
   return (
     <Dialog open={isOpen} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>Checklists for the Card</DialogTitle>
-      <ShowChecklist
+      <ShowAllChecklist
         checklists={cardChecklists}
         deleteChecklistById={deleteChecklistById}
         cardId={cardId}

@@ -12,14 +12,17 @@ function CheckItemsContextProvider({ children }) {
   // Function to fetch check items for a specific checklist
   const fetchCheckItems = async (checklistId) => {
     try {
+      const TOKEN = import.meta.env.VITE_TOKEN;
+      const KEY = import.meta.env.VITE_API_KEY;
       const response = await axios.get(
         `https://api.trello.com/1/checklists/${checklistId}/checkItems?key=${KEY}&token=${TOKEN}`
       );
+      return response.data;
 
-      setCheckItems((prevCheckItems) => ({
-        ...prevCheckItems,
-        [checklistId]: response.data,
-      }));
+      // setCheckItems((prevCheckItems) => ({
+      //   ...prevCheckItems,
+      //   [checklistId]: response.data,
+      // }));
     } catch (error) {
       console.error("Error fetching check items:", error);
     }
@@ -66,7 +69,7 @@ function CheckItemsContextProvider({ children }) {
   // Function to Update a CheckItem using BoardId and checkItemID
 
   const updateCheckItem = async (boardId, idCheckItem, state) => {
-    const response = axios.put(
+    const response = await axios.put(
       `https://api.trello.com/1/cards/${boardId}/checkItem/${idCheckItem}?key=${KEY}&token=${TOKEN}&state=${state}`
     );
   };
@@ -76,6 +79,7 @@ function CheckItemsContextProvider({ children }) {
     fetchCheckItems,
     createCheckItem,
     deleteCheckItemById,
+    updateCheckItem,
   };
 
   return (

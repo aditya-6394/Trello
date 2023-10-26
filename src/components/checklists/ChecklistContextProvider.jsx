@@ -74,6 +74,20 @@ function ChecklistContextProvider({ children }) {
     }
   };
 
+  // Updating Checked checklists:
+  // const updateCheckedItems = (cardId, checklistId, count) => {
+  //   setChecklists((prevChecklists) => {
+  //     const updatedChecklists = { ...prevChecklists };
+  //     const checklist = updatedChecklists[cardId].find(
+  //       (item) => item.id === checklistId
+  //     );
+  //     if (checklist) {
+  //       checklist.checkedItems = count;
+  //     }
+  //     return updatedChecklists;
+  //   });
+  // };
+
   const values = {
     checklists,
     fetchChecklists,

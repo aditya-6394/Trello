@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import LinearProgress from "@mui/material/LinearProgress";
 import Typography from "@mui/material/Typography";
@@ -20,26 +20,21 @@ function LinearProgressWithLabel(props) {
 }
 
 LinearProgressWithLabel.propTypes = {
-  /**
-   * The value of the progress indicator for the determinate and buffer variants.
-   * Value between 0 and 100.
-   */
   value: PropTypes.number.isRequired,
 };
 
-export default function LinearWithValueLabel() {
-  const [progress, setProgress] = React.useState(10);
+function LinearWithValueLabel({ id, totalItems, checkedItems }) {
+  const [progress, setProgress] = React.useState(0);
 
-  React.useEffect(() => {
-    const timer = setInterval(() => {
-      setProgress((prevProgress) =>
-        prevProgress >= 100 ? 10 : prevProgress + 10
-      );
-    }, 800);
-    return () => {
-      clearInterval(timer);
-    };
-  }, []);
+  const calculateProgress = () => {
+    console.log(totalItems);
+    console.log(checkedItems);
+    return totalItems !== 0 ? (checkedItems / totalItems) * 100 : 0;
+  };
+
+  useEffect(() => {
+    setProgress(calculateProgress());
+  }, [totalItems, checkedItems]);
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -47,3 +42,5 @@ export default function LinearWithValueLabel() {
     </Box>
   );
 }
+
+export default LinearWithValueLabel;
