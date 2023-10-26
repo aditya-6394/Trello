@@ -1,39 +1,19 @@
-import React, { useContext, useEffect, useState } from "react";
-import { CardContext } from "./CardContextProvider";
-import Card from "./Card";
+import React, { useState } from "react";
 
-function CardsList({ listId }) {
-  const { cardsByList, fetchCards, deleteCardById, createCard } =
-    useContext(CardContext);
-  const cards = cardsByList[listId] || [];
+const AddCard = ({ onAddCard }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [newCardText, setNewCardText] = useState("");
 
-  useEffect(() => {
-    fetchCards(listId);
-  }, [listId]);
-
   const handleAddCard = () => {
     if (newCardText.trim() !== "") {
-      createCard(listId, newCardText);
+      onAddCard(newCardText);
       setNewCardText("");
       setIsAdding(false);
     }
   };
 
   return (
-    <>
-      <div>
-        {cards.map((card) => {
-          return (
-            <Card
-              key={card.id}
-              card={card}
-              onDelete={() => deleteCardById(listId, card.id)}
-            />
-          );
-        })}
-      </div>
+    <div>
       {isAdding ? (
         <div>
           <input
@@ -48,8 +28,8 @@ function CardsList({ listId }) {
       ) : (
         <span onClick={() => setIsAdding(true)}>+ Add a card</span>
       )}
-    </>
+    </div>
   );
-}
+};
 
-export default CardsList;
+export default AddCard;
