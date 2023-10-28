@@ -53,6 +53,6 @@ function Card({ card, onDelete }) {
       </Stack>
     )
   );
-}
+}    
 
 export default Card;

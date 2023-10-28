@@ -1,8 +1,8 @@
 import React, { useContext, useState } from "react";
 import { Button, TextField } from "@mui/material";
 import { CheckItemsContext } from "./CheckItemsContextProvider";
-function AddChecklistItem({ checklistId }) {
-  const { createCheckItem } = useContext(CheckItemsContext);
+function AddChecklistItem({ checklistId, createCheckItem }) {
+  // const { createCheckItem } = useContext(CheckItemsContext);
 
   const [isAdding, setIsAdding] = useState(false);
   const [newItemText, setNewItemText] = useState("");
@@ -14,6 +14,7 @@ function AddChecklistItem({ checklistId }) {
 
   const handleAddItem = () => {
     if (newItemText.trim() !== "") {
+      console.log("From add item page");
       createCheckItem(checklistId, newItemText);
       setNewItemText("");
       toggleAdding();

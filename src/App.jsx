@@ -5,7 +5,7 @@ import Board from "./components/board/Board";
 import BoardsContextProvider from "./components/boards/BoardsContextProvider";
 import ListContextProvider from "./components/lists/ListsContextProvider";
 import CardContextProvider from "./components/cards/CardContextProvider";
-import ChecklistContextProvider from "./components/checklists/ChecklistContextProvider";
+// import ChecklistContextProvider from "./components/checklists/ChecklistContextProvider";
 import "./App.css";
 
 function App() {
@@ -14,14 +14,14 @@ function App() {
       <BoardsContextProvider>
         <ListContextProvider>
           <CardContextProvider>
-            <ChecklistContextProvider>
+            {/* <ChecklistContextProvider> */}
               <Routes>
                 <Route path="/" element={<Layout />}>
                   <Route index element={<Boards />} />
                   <Route path="board/:id" element={<Board />} />
                 </Route>
               </Routes>
-            </ChecklistContextProvider>
+            {/* </ChecklistContextProvider> */}
           </CardContextProvider>
         </ListContextProvider>
       </BoardsContextProvider>

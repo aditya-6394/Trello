@@ -1,106 +1,193 @@
-import React, { createContext, useState } from "react";
-import axios from "axios";
+// import React, { createContext, useState, useReducer } from "react";
+// import axios from "axios";
 
-const TOKEN = import.meta.env.VITE_TOKEN;
-const KEY = import.meta.env.VITE_API_KEY;
+// const TOKEN = import.meta.env.VITE_TOKEN;
+// const KEY = import.meta.env.VITE_API_KEY;
 
-const ChecklistContext = createContext();
+// const ChecklistContext = createContext();
 
-function ChecklistContextProvider({ children }) {
-  const [checklists, setChecklists] = useState({});
+// function ChecklistContextProvider({ children }) {
+//   const [checklists, setChecklists] = useState({});
 
-  // Function to fetch checklists for a specific card
-  const fetchChecklists = async (cardId) => {
-    try {
-      const response = await axios.get(
-        `https://api.trello.com/1/cards/${cardId}/checklists?key=${KEY}&token=${TOKEN}`
-      );
+//   // Function to fetch checklists for a specific card
+//   const fetchChecklists = async (cardId) => {
+//     try {
+//       const response = await axios.get(
+//         `https://api.trello.com/1/cards/${cardId}/checklists?key=${KEY}&token=${TOKEN}`
+//       );
 
-      setChecklists((prevChecklists) => ({
-        ...prevChecklists,
-        [cardId]: response.data,
-      }));
-    } catch (error) {
-      console.error("Error fetching checklists:", error);
-    }
-  };
+//       setChecklists((prevChecklists) => ({
+//         ...prevChecklists,
+//         [cardId]: response.data,
+//       }));
+//     } catch (error) {
+//       console.error("Error fetching checklists:", error);
+//     }
+//   };
 
-  // Function to create a new checklist for a card
-  const createChecklist = async (cardId, name) => {
-    try {
-      const response = await axios.post(
-        `https://api.trello.com/1/checklists?key=${KEY}&token=${TOKEN}`,
-        {
-          idCard: cardId,
-          name: name,
-        }
-      );
+//   // Function to create a new checklist for a card
+//   const createChecklist = async (cardId, name) => {
+//     try {
+//       const response = await axios.post(
+//         `https://api.trello.com/1/checklists?key=${KEY}&token=${TOKEN}`,
+//         {
+//           idCard: cardId,
+//           name: name,
+//         }
+//       );
 
-      const newChecklist = response.data;
-      setChecklists((prevChecklists) => ({
-        ...prevChecklists,
-        [cardId]: [...(prevChecklists[cardId] || []), newChecklist],
-      }));
-    } catch (error) {
-      console.error("Error creating checklist:", error);
-    }
-  };
+//       const newChecklist = response.data;
+//       setChecklists((prevChecklists) => ({
+//         ...prevChecklists,
+//         [cardId]: [...(prevChecklists[cardId] || []), newChecklist],
+//       }));
+//     } catch (error) {
+//       console.error("Error creating checklist:", error);
+//     }
+//   };
 
-  // Function to delete a checklist by its ID
-  const deleteChecklistById = async (checklistId) => {
-    try {
-      await axios.delete(
-        `https://api.trello.com/1/checklists/${checklistId}?key=${KEY}&token=${TOKEN}`
-      );
+//   // Function to delete a checklist by its ID
+//   const deleteChecklistById = async (checklistId) => {
+//     try {
+//       await axios.delete(
+//         `https://api.trello.com/1/checklists/${checklistId}?key=${KEY}&token=${TOKEN}`
+//       );
 
-      setChecklists((prevChecklists) => {
-        const updatedChecklists = { ...prevChecklists };
-        const cardId = Object.keys(updatedChecklists).find((key) =>
-          updatedChecklists[key].some(
-            (checklist) => checklist.id === checklistId
-          )
-        );
+//       setChecklists((prevChecklists) => {
+//         const updatedChecklists = { ...prevChecklists };
+//         const cardId = Object.keys(updatedChecklists).find((key) =>
+//           updatedChecklists[key].some(
+//             (checklist) => checklist.id === checklistId
+//           )
+//         );
 
-        if (cardId) {
-          updatedChecklists[cardId] = updatedChecklists[cardId].filter(
-            (checklist) => checklist.id !== checklistId
-          );
-        }
+//         if (cardId) {
+//           updatedChecklists[cardId] = updatedChecklists[cardId].filter(
+//             (checklist) => checklist.id !== checklistId
+//           );
+//         }
 
-        return updatedChecklists;
-      });
-    } catch (error) {
-      console.error("Error deleting checklist:", error);
-    }
-  };
+//         return updatedChecklists;
+//       });
+//     } catch (error) {
+//       console.error("Error deleting checklist:", error);
+//     }
+//   };
 
-  // Updating Checked checklists:
-  // const updateCheckedItems = (cardId, checklistId, count) => {
-  //   setChecklists((prevChecklists) => {
-  //     const updatedChecklists = { ...prevChecklists };
-  //     const checklist = updatedChecklists[cardId].find(
-  //       (item) => item.id === checklistId
-  //     );
-  //     if (checklist) {
-  //       checklist.checkedItems = count;
-  //     }
-  //     return updatedChecklists;
-  //   });
-  // };
+//   const values = {
+//     checklists,
+//     fetchChecklists,
+//     createChecklist,
+//     deleteChecklistById,
+//   };
 
-  const values = {
-    checklists,
-    fetchChecklists,
-    createChecklist,
-    deleteChecklistById,
-  };
+//   return (
+//     <ChecklistContext.Provider value={values}>
+//       {children}
+//     </ChecklistContext.Provider>
+//   );
+// }
 
-  return (
-    <ChecklistContext.Provider value={values}>
-      {children}
-    </ChecklistContext.Provider>
-  );
-}
+// export default ChecklistContextProvider;
+// export { ChecklistContext };
 
-export default ChecklistContextProvider;
-export { ChecklistContext };
+// import React, { createContext, useState, useReducer } from "react";
+// import axios from "axios";
+
+// const TOKEN = import.meta.env.VITE_TOKEN;
+// const KEY = import.meta.env.VITE_API_KEY;
+
+// const ChecklistContext = createContext();
+
+// // const reducer = (state,action)=>{
+// //   switch(action){
+
+// //   }
+// // }
+
+// function ChecklistContextProvider({ children }) {
+//   const [checklists, setChecklists] = useState({});
+
+//   // const [state, dispatch] = useReducer(reducer, inititalState);
+
+//   // Function to fetch checklists for a specific card
+//   const fetchChecklists = async (cardId) => {
+//     try {
+//       const response = await axios.get(
+//         `https://api.trello.com/1/cards/${cardId}/checklists?key=${KEY}&token=${TOKEN}`
+//       );
+
+//       setChecklists((prevChecklists) => ({
+//         ...prevChecklists,
+//         [cardId]: response.data,
+//       }));
+//     } catch (error) {
+//       console.error("Error fetching checklists:", error);
+//     }
+//   };
+
+//   // Function to create a new checklist for a card
+//   const createChecklist = async (cardId, name) => {
+//     try {
+//       const response = await axios.post(
+//         `https://api.trello.com/1/checklists?key=${KEY}&token=${TOKEN}`,
+//         {
+//           idCard: cardId,
+//           name: name,
+//         }
+//       );
+
+//       const newChecklist = response.data;
+//       setChecklists((prevChecklists) => ({
+//         ...prevChecklists,
+//         [cardId]: [...(prevChecklists[cardId] || []), newChecklist],
+//       }));
+//     } catch (error) {
+//       console.error("Error creating checklist:", error);
+//     }
+//   };
+
+//   // Function to delete a checklist by its ID
+//   const deleteChecklistById = async (checklistId) => {
+//     try {
+//       await axios.delete(
+//         `https://api.trello.com/1/checklists/${checklistId}?key=${KEY}&token=${TOKEN}`
+//       );
+
+//       setChecklists((prevChecklists) => {
+//         const updatedChecklists = { ...prevChecklists };
+//         const cardId = Object.keys(updatedChecklists).find((key) =>
+//           updatedChecklists[key].some(
+//             (checklist) => checklist.id === checklistId
+//           )
+//         );
+
+//         if (cardId) {
+//           updatedChecklists[cardId] = updatedChecklists[cardId].filter(
+//             (checklist) => checklist.id !== checklistId
+//           );
+//         }
+
+//         return updatedChecklists;
+//       });
+//     } catch (error) {
+//       console.error("Error deleting checklist:", error);
+//     }
+//   };
+
+//   const values = {
+//     checklists,
+//     fetchChecklists,
+//     createChecklist,
+//     deleteChecklistById,
+//   };
+
+//   return (
+//     <ChecklistContext.Provider value={values}>
+//       {children}
+//     </ChecklistContext.Provider>
+//   );
+// }
+
+// export default ChecklistContextProvider;
+// export { ChecklistContext };

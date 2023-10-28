@@ -9,9 +9,14 @@ import {
   Checkbox,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { CheckItemsContext } from "./CheckItemsContextProvider";
 
-function CheckItems({ cardId, checkListItems, onItemToggle }) {
+function CheckItems({
+  cardId,
+  checkItems,
+  onItemToggle,
+  handleCheckItemDeletion,
+  checklistId,
+}) {
   const updateCheckItem = async (cardId, idCheckItem, state) => {
     const TOKEN = import.meta.env.VITE_TOKEN;
     const KEY = import.meta.env.VITE_API_KEY;
@@ -35,9 +40,9 @@ function CheckItems({ cardId, checkListItems, onItemToggle }) {
   };
 
   return (
-    checkListItems && (
+    checkItems && (
       <List sx={{ width: "100%" }}>
-        {checkListItems.map((checkItem) => (
+        {checkItems.map((checkItem) => (
           <div key={checkItem.id}>
             <ListItem>
               <Checkbox
@@ -50,7 +55,9 @@ function CheckItems({ cardId, checkListItems, onItemToggle }) {
               />
               <ListItemText primary={checkItem.name} />
               <IconButton
-                onClick={() => deleteCheckItemById(checklistId, checkItem.id)}
+                onClick={() =>
+                  handleCheckItemDeletion(checklistId, checkItem.id)
+                }
               >
                 <DeleteIcon />
               </IconButton>

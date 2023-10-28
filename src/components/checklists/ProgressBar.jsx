@@ -24,17 +24,13 @@ LinearProgressWithLabel.propTypes = {
 };
 
 function LinearWithValueLabel({ id, totalItems, checkedItems }) {
-  const [progress, setProgress] = React.useState(0);
-
   const calculateProgress = () => {
     console.log(totalItems);
     console.log(checkedItems);
     return totalItems !== 0 ? (checkedItems / totalItems) * 100 : 0;
   };
 
-  useEffect(() => {
-    setProgress(calculateProgress());
-  }, [totalItems, checkedItems]);
+  let progress = calculateProgress();
 
   return (
     <Box sx={{ width: "100%" }}>
