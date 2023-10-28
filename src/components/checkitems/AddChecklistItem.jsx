@@ -1,9 +1,7 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { Button, TextField } from "@mui/material";
-import { CheckItemsContext } from "./CheckItemsContextProvider";
-function AddChecklistItem({ checklistId, createCheckItem }) {
-  // const { createCheckItem } = useContext(CheckItemsContext);
 
+function AddChecklistItem({ checklistId, createCheckItem }) {
   const [isAdding, setIsAdding] = useState(false);
   const [newItemText, setNewItemText] = useState("");
 

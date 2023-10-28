@@ -1,4 +1,5 @@
 import React, { useEffect, useReducer } from "react";
+import { Stack, Grid, Paper } from "@mui/material";
 import Card from "./Card";
 import AddCard from "./AddCard";
 import axios from "axios";
@@ -39,9 +40,6 @@ const createCard = async (listId, cardName) => {
     const response = await axios.post(
       `https://api.trello.com/1/cards?name=${cardName}&idList=${listId}&key=${KEY}&token=${TOKEN}`
     );
-
-    console.log("Crad created");
-    console.log(response.data);
 
     return response.data;
   } catch (error) {
@@ -89,15 +87,24 @@ function CardsList({ listId }) {
   };
 
   return (
-    <>
-      <div>
+    <Grid>
+      <Stack>
         {state.allCards.map((card) => {
           return <Card key={card.id} card={card} onDelete={handleDeleteCard} />;
         })}
-      </div>
-
-      <AddCard handleAddElement={handleAddCard} listId={listId} />
-    </>
+      </Stack>
+      <Paper
+        sx={{
+          padding: 1.3,
+          // borderRadius: "0.8rem",
+          backgroundColor: "#ebecf0",
+          elevation: 0,
+          border: "none",
+        }}
+      >
+        <AddCard handleAddElement={handleAddCard} listId={listId} />
+      </Paper>
+    </Grid>
   );
 }
 

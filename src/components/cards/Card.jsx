@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Stack, Typography, IconButton } from "@mui/material";
+import { Paper, Typography, IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ChecklistModal from "../checklists/ChecklistModal";
 
@@ -17,16 +17,16 @@ function Card({ card, onDelete }) {
 
   return (
     card && (
-      <Stack
+      <Paper
         direction="row"
-        mb={1}
         sx={{
+          marginBottom: 1,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           backgroundColor: "white",
-          borderRadius: "0.5rem",
-          paddingX: "0.4rem",
+          borderRadius: "0.8rem",
+          paddingX: "0.6rem",
           "&:hover": {
             outline: "2px solid red",
             cursor: "pointer",
@@ -55,7 +55,7 @@ function Card({ card, onDelete }) {
           isOpen={isModalOpen}
           onClose={closeModal}
         />
-      </Stack>
+      </Paper>
     )
   );
 }
