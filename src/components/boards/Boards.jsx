@@ -1,19 +1,58 @@
-import React, { useContext, useState } from "react";
-import { Grid, Box, Stack, Typography, Paper, Container } from "@mui/material";
-import { BoardsContext } from "./BoardsContextProvider";
+import React, { useEffect, useReducer } from "react";
+import { Grid, Box, Typography, Container } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-// import FormDialog from "../dialog/Dialog";
+import FormDialog from "./BoardCreationDialog";
 import axios from "axios";
 
 const TOKEN = import.meta.env.VITE_TOKEN;
 const KEY = import.meta.env.VITE_API_KEY;
 
+async function getAllBoards() {
+  try {
+    const response = await axios.get(
+      `https://api.trello.com/1/members/me/boards?key=${KEY}&token=${TOKEN}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// const boardBackground = {};
+// if (allBoards) {
+//   allBoards.forEach((board) => {
+//     boardBackground[board.id] = {
+//       backgroundColor: board.prefs.backgroundColor,
+//       backgroundImage: board.prefs.backgroundImage,
+//     };
+//   });
+// }
+
+const initialState = {
+  allBoards: [],
+};
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "get":
+      return { allBoards: action.payload };
+    case "post":
+      return { allBoards: [...state.allBoards, action.payload] };
+  }
+};
+
 function Boards() {
-  const { allBoards, setAllBoards } = useContext(BoardsContext);
+  const [state, dispatcher] = useReducer(reducer, initialState);
+
   const [open, setOpen] = React.useState(false);
   const navigate = useNavigate();
 
-  const handleClickOpen = () => {
+  useEffect(() => {
+    getAllBoards().then((allBoards) => {
+      dispatcher({ type: "get", payload: allBoards });
+    });
+  }, []);
+
+  const handleClickOpen = (e) => {
     setOpen(true);
   };
 
@@ -33,8 +72,8 @@ function Boards() {
       const response = await axios.post(
         `https://api.trello.com/1/boards/?name=${name}&key=${KEY}&token=${TOKEN}`
       );
-
-      setAllBoards([...allBoards, response.data]);
+      const createdBoard = response.data;
+      dispatcher({ type: "post", payload: createdBoard });
 
       handleClose();
     } catch (error) {
@@ -45,8 +84,8 @@ function Boards() {
   return (
     <Container>
       <Grid container sx={{ marginTop: "2rem" }}>
-        {allBoards
-          ? allBoards.map((board, index) => {
+        {state.allBoards
+          ? state.allBoards.map((board, index) => {
               return (
                 <Grid
                   key={index}
@@ -64,16 +103,11 @@ function Boards() {
                     height="100px"
                     borderRadius={1}
                     p={1}
-                    sx={
-                      board.prefs.backgroundColor
-                        ? {
-                            backgroundColor: board.prefs.backgroundColor,
-                          }
-                        : {
-                            backgroundImage: `url('${board.prefs.backgroundImage}')`,
-                            backgroundSize: "cover",
-                          }
-                    }
+                    sx={{
+                      backgroundColor: board.prefs.backgroundColor,
+                      backgroundImage: `url('${board.prefs.backgroundImage}')`,
+                      "&:hover": { cursor: "pointer" },
+                    }}
                   >
                     <Typography variant="h6" color="white">
                       {board.name}
@@ -90,19 +124,21 @@ function Boards() {
             borderRadius={1}
             p={1}
             sx={{ backgroundColor: "lightgray" }}
-            onClick={handleClickOpen}
+            onClick={() => {
+              handleClickOpen();
+            }}
           >
             <Typography variant="body1">Create a new board</Typography>
           </Box>
         </Grid>
       </Grid>
-      {/* <FormDialog
+      <FormDialog
         handleClickOpen={handleClickOpen}
         handleClose={handleClose}
         open={open}
         setOpen={setOpen}
         createBoard={createBoard}
-      /> */}
+      />
     </Container>
   );
 }

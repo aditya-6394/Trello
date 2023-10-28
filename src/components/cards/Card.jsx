@@ -42,7 +42,11 @@ function Card({ card, onDelete }) {
         <Typography variant="h6" onClick={openModal}>
           {card.name}
         </Typography>
-        <IconButton p={2} onClick={onDelete} className="deleteIcon">
+        <IconButton
+          p={2}
+          onClick={() => onDelete(card.id)}
+          className="deleteIcon"
+        >
           <DeleteIcon />
         </IconButton>
         <ChecklistModal
@@ -53,6 +57,6 @@ function Card({ card, onDelete }) {
       </Stack>
     )
   );
-}    
+}
 
 export default Card;
