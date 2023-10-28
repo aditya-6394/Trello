@@ -1,7 +1,6 @@
-import React, { useContext, useEffect, useState, useReducer } from "react";
-
+import React, { useEffect, useReducer } from "react";
 import Card from "./Card";
-
+import AddCard from "./AddCard";
 import axios from "axios";
 
 const TOKEN = import.meta.env.VITE_TOKEN;
@@ -63,9 +62,6 @@ const deleteCardById = async (cardId) => {
 };
 
 function CardsList({ listId }) {
-  const [isAdding, setIsAdding] = useState(false);
-  const [newCardText, setNewCardText] = useState("");
-
   const [state, dispatcher] = useReducer(reducer, initialState);
 
   useEffect(() => {
@@ -74,13 +70,11 @@ function CardsList({ listId }) {
     });
   }, []);
 
-  const handleAddCard = () => {
+  const handleAddCard = (newCardText) => {
     if (newCardText.trim() !== "") {
       console.log("New  card text");
       createCard(listId, newCardText).then((createdCard) => {
         dispatcher({ type: "post", payload: createdCard });
-        setNewCardText("");
-        setIsAdding(false);
       });
     }
   };
@@ -101,20 +95,8 @@ function CardsList({ listId }) {
           return <Card key={card.id} card={card} onDelete={handleDeleteCard} />;
         })}
       </div>
-      {isAdding ? (
-        <div>
-          <input
-            type="text"
-            placeholder="Enter card title"
-            value={newCardText}
-            onChange={(e) => setNewCardText(e.target.value)}
-          />
-          <button onClick={handleAddCard}>Add Card</button>
-          <span onClick={() => setIsAdding(false)}>Close</span>
-        </div>
-      ) : (
-        <span onClick={() => setIsAdding(true)}>+ Add a card</span>
-      )}
+
+      <AddCard handleAddElement={handleAddCard} listId={listId} />
     </>
   );
 }

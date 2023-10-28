@@ -1,35 +1,46 @@
 import React, { useState } from "react";
+import { TextField, Button, Typography, Box } from "@mui/material";
 
-const AddCard = ({ onAddCard }) => {
+function AddCard({ handleAddElement }) {
   const [isAdding, setIsAdding] = useState(false);
   const [newCardText, setNewCardText] = useState("");
 
-  const handleAddCard = () => {
+  const handleElementAddition = () => {
     if (newCardText.trim() !== "") {
-      onAddCard(newCardText);
+      handleAddElement(newCardText);
       setNewCardText("");
       setIsAdding(false);
     }
   };
 
   return (
-    <div>
+    <Box>
       {isAdding ? (
-        <div>
-          <input
-            type="text"
-            placeholder="Enter card title"
+        <Box>
+          <TextField
+            label="Enter card title"
+            variant="outlined"
             value={newCardText}
             onChange={(e) => setNewCardText(e.target.value)}
           />
-          <button onClick={handleAddCard}>Add Card</button>
-          <span onClick={() => setIsAdding(false)}>Close</span>
-        </div>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleElementAddition}
+          >
+            Add Card
+          </Button>
+          <Typography variant="body2" onClick={() => setIsAdding(false)}>
+            Close
+          </Typography>
+        </Box>
       ) : (
-        <span onClick={() => setIsAdding(true)}>+ Add a card</span>
+        <Typography variant="body2" onClick={() => setIsAdding(true)}>
+          + Add a card
+        </Typography>
       )}
-    </div>
+    </Box>
   );
-};
+}
 
 export default AddCard;

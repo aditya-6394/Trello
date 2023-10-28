@@ -26,7 +26,7 @@ function Card({ card, onDelete }) {
           justifyContent: "space-between",
           backgroundColor: "white",
           borderRadius: "0.5rem",
-          padding: "0.4rem",
+          paddingX: "0.4rem",
           "&:hover": {
             outline: "2px solid red",
             cursor: "pointer",
@@ -43,6 +43,7 @@ function Card({ card, onDelete }) {
           {card.name}
         </Typography>
         <IconButton
+          sx={{ visibility: "hidden" }}
           p={2}
           onClick={() => onDelete(card.id)}
           className="deleteIcon"

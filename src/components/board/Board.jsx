@@ -9,6 +9,7 @@ const KEY = import.meta.env.VITE_API_KEY;
 
 const initialState = {
   allLists: [],
+  board: {},
 };
 
 const reducer = (state, action) => {
@@ -19,15 +20,35 @@ const reducer = (state, action) => {
       return { allLists: [...state.allLists, action.payload] };
     case "delete":
       return { allLists: action.payload };
+    case "board":
+      // return { board: action.payload };
+      return {
+        board: {
+          backgroundColor: action.payload.prefs.backgroundColor,
+          backgroundImage: action.payload.prefs.backgroundImage,
+        },
+      };
   }
 };
 
+// Fetch the board for background color/image:
+const fetchBoard = async (id) => {
+  try {
+    const response = await axios.get(
+      `https://api.trello.com/1/boards/${id}?key=${KEY}&token=${TOKEN}`
+    );
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
 //   Fetch all lists in a board
 const fetchLists = async (boardId) => {
   try {
     const response = await axios.get(
       `https://api.trello.com/1/boards/${boardId}/lists?key=${KEY}&token=${TOKEN}`
     );
+
     return response.data;
   } catch (error) {
     console.log(error);
@@ -69,6 +90,9 @@ function Board() {
     });
   }, []);
 
+  console.log(state.board);
+  // console.log(state.allLists);
+
   const handleDeleteList = (listId) => {
     deleteListById(listId).then((response) => {
       const updatedList = state.allLists.filter((list) => {
@@ -97,22 +121,21 @@ function Board() {
         overflowX: "auto",
         scrollBehavior: "smooth",
         minHeight: "94vh",
+        // backgroundColor: state.board?.backgroundColor || "",
+        // backgroundImage: state.board?.backgroundImage
+        //   ? `url(${state.board.backgroundImage})`
+        //   : undefined,
       }}
     >
-      <Stack
-        direction="row"
-        width="fit-content"
-        gap={3}
-        p={2}
-        className="lists-container"
-      >
-        {state.allLists.map((list) => (
-          <ListDisplay
-            key={list.id}
-            list={list}
-            onDeleteList={handleDeleteList}
-          />
-        ))}
+      <Stack direction="row" width="fit-content" gap={2} p={2}>
+        {state.allLists &&
+          state.allLists.map((list) => (
+            <ListDisplay
+              key={list.id}
+              list={list}
+              onDeleteList={handleDeleteList}
+            />
+          ))}
         {/* For creating a new list */}
         <div>
           <TextField
@@ -120,6 +143,13 @@ function Board() {
             variant="outlined"
             value={newListName}
             onChange={handleNewListNameChange}
+            sx={{
+              width: "272px",
+              borderRadius: 2.5,
+              padding: 2,
+              height: "fit-content",
+              backgroundColor: "#ebecf0",
+            }}
           />
           <Button onClick={handleCreateList}>Add List</Button>
         </div>

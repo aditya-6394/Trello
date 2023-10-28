@@ -5,54 +5,46 @@ import DeleteIcon from "@mui/icons-material/Delete";
 
 function ListDisplay({ list, onDeleteList }) {
   return (
-    <Stack
-      direction="row"
-      width="fit-content"
-      gap={3}
-      p={2}
-      className="lists-container"
+    <Paper
+      elevation={2}
+      sx={{
+        width: "272px",
+        borderRadius: 2.5,
+        padding: 2,
+        height: "fit-content",
+        backgroundColor: "#ebecf0",
+      }}
+      className="listItem"
+      key={list.id}
     >
-      <Paper
-        elevation={2}
+      <Box
+        className="list-heading"
         sx={{
-          width: "272px",
-          borderRadius: 2.5,
-          padding: 2,
-          height: "fit-content",
-          backgroundColor: "#ebecf0",
+          display: "flex",
+          alignItems: "center",
         }}
-        className="listItem"
-        key={list.id}
       >
-        <Box
-          className="list-heading"
+        <Typography
+          variant="p"
           sx={{
-            display: "flex",
-            alignItems: "center",
+            flexBasis: "80%",
+            fontWeight: 600,
           }}
         >
-          <Typography
-            variant="p"
-            sx={{
-              flexBasis: "80%",
-              fontWeight: 600,
-            }}
-          >
-            {list.name}
-          </Typography>
-          <IconButton
-            sx={{ flexBasis: "20%" }}
-            className="deleteList"
-            id={list.id}
-            onClick={() => onDeleteList(list.id)}
-          >
-            <DeleteIcon />
-          </IconButton>
-        </Box>
+          {list.name}
+        </Typography>
+        <IconButton
+          sx={{ flexBasis: "20%" }}
+          className="deleteList"
+          id={list.id}
+          onClick={() => onDeleteList(list.id)}
+        >
+          <DeleteIcon />
+        </IconButton>
+      </Box>
 
-        <CardsList listId={list.id} />
-      </Paper>
-    </Stack>
+      <CardsList listId={list.id} />
+    </Paper>
   );
 }
 
