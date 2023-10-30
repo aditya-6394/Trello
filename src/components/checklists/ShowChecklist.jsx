@@ -1,6 +1,6 @@
 import React from "react";
 import axios from "axios";
-import { useState, useEffect, useContext, useReducer } from "react";
+import { useEffect, useReducer } from "react";
 
 import { List, ListItem, ListItemText, IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -42,7 +42,7 @@ const deleteCheckItemById = async (checklistId, checkItemId) => {
     const response = await axios.delete(
       `https://api.trello.com/1/checklists/${checklistId}/checkItems/${checkItemId}?key=${KEY}&token=${TOKEN}`
     );
-    console.log("Form deleting");
+
     return response;
   } catch (error) {
     console.error("Error deleting check item:", error);
@@ -97,7 +97,6 @@ function ShowChecklist({ checklist, deleteChecklistById }) {
 
   const handleCheckItemDeletion = (checklistId, checkItemId) => {
     deleteCheckItemById(checklistId, checkItemId).then((data) => {
-      console.log("HandlecheckItemDelete");
       const updatedCheckItemsList = state.checkItems.filter((item) => {
         return item.id !== checkItemId;
       });

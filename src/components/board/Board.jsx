@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useReducer } from "react";
-import { Grid, Button, TextField, Stack } from "@mui/material";
+import { Grid, Button, TextField, Stack, Paper } from "@mui/material";
 import { useParams } from "react-router-dom";
 import ListDisplay from "../lists/ListDisplay";
+import AddListItem from "./AddList";
 import axios from "axios";
 
 const TOKEN = import.meta.env.VITE_TOKEN;
@@ -15,41 +16,33 @@ const initialState = {
 const reducer = (state, action) => {
   switch (action.type) {
     case "get":
-      return { allLists: action.payload };
+      return { ...state, allLists: action.payload };
     case "post":
-      return { allLists: [...state.allLists, action.payload] };
+      return { ...state, allLists: [...state.allLists, action.payload] };
     case "delete":
-      return { allLists: action.payload };
+      return { ...state, allLists: action.payload };
     case "board":
-      // return { board: action.payload };
-      return {
-        board: {
-          backgroundColor: action.payload.prefs.backgroundColor,
-          backgroundImage: action.payload.prefs.backgroundImage,
-        },
-      };
+      return { ...state, board: action.payload };
+    default:
+      return state;
   }
 };
 
-// Fetch the board for background color/image:
-const fetchBoard = async (id) => {
+const fetchBoardAndLists = async (boardId) => {
   try {
-    const response = await axios.get(
-      `https://api.trello.com/1/boards/${id}?key=${KEY}&token=${TOKEN}`
-    );
-    return response.data;
-  } catch (error) {
-    console.log(error);
-  }
-};
-//   Fetch all lists in a board
-const fetchLists = async (boardId) => {
-  try {
-    const response = await axios.get(
-      `https://api.trello.com/1/boards/${boardId}/lists?key=${KEY}&token=${TOKEN}`
-    );
+    const [boardResponse, listsResponse] = await Promise.all([
+      axios.get(
+        `https://api.trello.com/1/boards/${boardId}?key=${KEY}&token=${TOKEN}`
+      ),
+      axios.get(
+        `https://api.trello.com/1/boards/${boardId}/lists?key=${KEY}&token=${TOKEN}`
+      ),
+    ]);
 
-    return response.data;
+    const boardData = boardResponse.data;
+    const listsData = listsResponse.data;
+
+    return { board: boardData, allLists: listsData };
   } catch (error) {
     console.log(error);
   }
@@ -61,6 +54,9 @@ const createList = async (boardId, name) => {
     `https://api.trello.com/1/lists?name=${name}&idBoard=${boardId}&key=${KEY}&token=${TOKEN}`
   );
   const createdList = response.data;
+
+  // dispatcher({ type: "post", payload: createdList });
+
   return createdList;
 };
 
@@ -80,18 +76,15 @@ const deleteListById = async (id) => {
 
 function Board() {
   const { id } = useParams();
-  const [newListName, setNewListName] = useState("");
 
   const [state, dispatcher] = useReducer(reducer, initialState);
 
   useEffect(() => {
-    fetchLists(id).then((lists) => {
-      dispatcher({ type: "get", payload: lists });
+    fetchBoardAndLists(id).then((data) => {
+      dispatcher({ type: "board", payload: data.board });
+      dispatcher({ type: "get", payload: data.allLists });
     });
   }, []);
-
-  console.log(state.board);
-  // console.log(state.allLists);
 
   const handleDeleteList = (listId) => {
     deleteListById(listId).then((response) => {
@@ -102,17 +95,10 @@ function Board() {
     });
   };
 
-  const handleNewListNameChange = (event) => {
-    setNewListName(event.target.value);
-  };
-
-  const handleCreateList = () => {
-    if (newListName.trim() !== "") {
-      createList(id, newListName).then((list) => {
-        dispatcher({ type: "post", payload: list });
-      });
-      setNewListName("");
-    }
+  const handleCreateList = (id, newListName) => {
+    createList(id, newListName).then((list) => {
+      dispatcher({ type: "post", payload: list });
+    });
   };
 
   return (
@@ -121,10 +107,13 @@ function Board() {
         overflowX: "auto",
         scrollBehavior: "smooth",
         minHeight: "94vh",
-        // backgroundColor: state.board?.backgroundColor || "",
-        // backgroundImage: state.board?.backgroundImage
-        //   ? `url(${state.board.backgroundImage})`
-        //   : undefined,
+        backgroundColor: state.board.prefs
+          ? state.board.prefs.backgroundColor
+          : "",
+        backgroundImage: state.board.prefs
+          ? `url(${state.board.prefs.backgroundImage})`
+          : undefined,
+        backgroundSize: "cover",
       }}
     >
       <Stack direction="row" width="fit-content" gap={2} p={2}>
@@ -136,23 +125,19 @@ function Board() {
               onDeleteList={handleDeleteList}
             />
           ))}
-        {/* For creating a new list */}
-        <div>
-          <TextField
-            label="New List Name"
-            variant="outlined"
-            value={newListName}
-            onChange={handleNewListNameChange}
-            sx={{
-              width: "272px",
-              borderRadius: 2.5,
-              padding: 2,
-              height: "fit-content",
-              backgroundColor: "#ebecf0",
-            }}
-          />
-          <Button onClick={handleCreateList}>Add List</Button>
-        </div>
+
+        <Paper
+          elevation={2}
+          sx={{
+            width: "272px",
+            borderRadius: 2.5,
+            padding: 2,
+            height: "fit-content",
+            backgroundColor: "#ebecf0",
+          }}
+        >
+          <AddListItem id={id} handleCreateList={handleCreateList} />
+        </Paper>
       </Stack>
     </Grid>
   );
