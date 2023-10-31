@@ -1,4 +1,13 @@
-import React, { useContext, useEffect, useState, useReducer } from "react";
+import React, { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  getChecklists,
+  setLoading,
+  putChecklist,
+  deleteChecklist,
+  setError,
+} from "../../features/checklists/checklistsSlice";
+
 import { Dialog, DialogTitle, Button } from "@mui/material";
 import ChecklistPopover from "./CreateChecklistPopover";
 import ShowAllChecklist from "./ShowAllChecklists";
@@ -38,40 +47,34 @@ const createChecklist = async (cardId, name) => {
 // Function to delete a checklist by its ID
 const deleteChecklistById = async (checklistId) => {
   try {
-    const TOKEN = import.meta.env.VITE_TOKEN;
-    const KEY = import.meta.env.VITE_API_KEY;
     const response = await axios.delete(
       `https://api.trello.com/1/checklists/${checklistId}?key=${KEY}&token=${TOKEN}`
     );
     return response;
   } catch (error) {
-    console.error("Error deleting checklist:", error);
-  }
-};
-
-const inititalState = [];
-
-const reducer = (state, action) => {
-  switch (action.type) {
-    case "get":
-      return action.payload;
-    case "create":
-      return [...state, action.payload];
-    case "delete":
-      return action.payload;
+    throw new Error(error);
   }
 };
 
 function ChecklistModal({ cardId, isOpen, onClose }) {
-  const [anchorEl, setAnchorEl] = useState(null);
+  const dispatch = useDispatch();
+  const checklists = useSelector(
+    (state) => state.checklists.checklists[cardId]
+  );
 
-  const [state, dispatch] = useReducer(reducer, inititalState);
+  const [anchorEl, setAnchorEl] = useState(null);
 
   useEffect(() => {
     if (isOpen) {
-      fetchChecklists(cardId).then((checkLists) => {
-        dispatch({ type: "get", payload: checkLists });
-      });
+      fetchChecklists(cardId)
+        .then((checkLists) => {
+          setLoading(false);
+          setError("");
+          dispatch(getChecklists({ cardId, checkLists }));
+        })
+        .catch((error) => {
+          setError(error.message);
+        });
     }
   }, [cardId, isOpen]);
 
@@ -85,26 +88,30 @@ function ChecklistModal({ cardId, isOpen, onClose }) {
 
   const handleCreateChecklist = (newChecklistName) => {
     createChecklist(cardId, newChecklistName).then((createdChecklist) => {
-      dispatch({ type: "create", payload: createdChecklist });
+      dispatch(putChecklist({ cardId, createdChecklist }));
     });
   };
 
   const handleDeleteChecklist = (checklistId) => {
     deleteChecklistById(checklistId).then(() => {
-      const updatedList = state.filter((checklist) => {
+      const updatedList = checklists.filter((checklist) => {
         return checklist.id !== checklistId;
       });
-      dispatch({ type: "delete", payload: updatedList });
+      dispatch(deleteChecklist({ cardId, updatedList }));
     });
   };
+
+
 
   return (
     <Dialog open={isOpen} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>Checklists for the Card</DialogTitle>
-      <ShowAllChecklist
-        checklists={state}
-        deleteChecklistById={handleDeleteChecklist}
-      />
+      {checklists && (
+        <ShowAllChecklist
+          checklists={checklists}
+          deleteChecklistById={handleDeleteChecklist}
+        />
+      )}
       <Button onClick={openPopover}>Add Checklist</Button>
       <ChecklistPopover
         isOpen={Boolean(anchorEl)}

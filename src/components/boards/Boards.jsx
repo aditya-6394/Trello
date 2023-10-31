@@ -1,8 +1,15 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useEffect } from "react";
 import { Grid, Box, Typography, Container } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import FormDialog from "./BoardCreationDialog";
 import axios from "axios";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  getBoards,
+  putBoard,
+  setLoading,
+  setError,
+} from "../../features/boards/boardsSlice";
 
 const TOKEN = import.meta.env.VITE_TOKEN;
 const KEY = import.meta.env.VITE_API_KEY;
@@ -14,51 +21,36 @@ async function getAllBoards() {
     );
     return response.data;
   } catch (error) {
-    console.error(error);
+    throw new Error(error);
   }
 }
 
-// const boardBackground = {};
-// if (allBoards) {
-//   allBoards.forEach((board) => {
-//     boardBackground[board.id] = {
-//       backgroundColor: board.prefs.backgroundColor,
-//       backgroundImage: board.prefs.backgroundImage,
-//     };
-//   });
-// }
-
-const initialState = {
-  allBoards: [],
-};
-const reducer = (state, action) => {
-  switch (action.type) {
-    case "get":
-      return { allBoards: action.payload };
-    case "post":
-      return { allBoards: [...state.allBoards, action.payload] };
-  }
-};
-
 function Boards() {
-  const [state, dispatcher] = useReducer(reducer, initialState);
-
-  const [open, setOpen] = React.useState(false);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    getAllBoards().then((allBoards) => {
-      dispatcher({ type: "get", payload: allBoards });
-    });
-  }, []);
+  const [open, setOpen] = React.useState(false);
 
-  const handleClickOpen = (e) => {
+  const handleClickOpen = () => {
     setOpen(true);
   };
 
-  const handleClose = (event) => {
+  const handleClose = () => {
     setOpen(false);
   };
+
+  useEffect(() => {
+    getAllBoards()
+      .then((allBoards) => {
+        dispatch(getBoards(allBoards));
+        dispatch(setLoading(false));
+      })
+      .catch((error) => {
+        setError(error);
+      });
+  }, []);
+
+  const allBoards = useSelector((state) => state.boards.allBoards);
 
   const onClickHandler = (event) => {
     if (event.target.classList.contains("board")) {
@@ -73,19 +65,20 @@ function Boards() {
         `https://api.trello.com/1/boards/?name=${name}&key=${KEY}&token=${TOKEN}`
       );
       const createdBoard = response.data;
-      dispatcher({ type: "post", payload: createdBoard });
+
+      dispatch(putBoard(createdBoard));
 
       handleClose();
     } catch (error) {
-      console.error(error);
+      throw new Error(error);
     }
   };
 
   return (
     <Container>
       <Grid container sx={{ marginTop: "2rem" }}>
-        {state.allBoards
-          ? state.allBoards.map((board, index) => {
+        {allBoards
+          ? allBoards.map((board, index) => {
               return (
                 <Grid
                   key={index}

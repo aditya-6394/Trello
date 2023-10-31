@@ -1,4 +1,13 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useEffect } from "react";
+
+import { useSelector, useDispatch } from "react-redux";
+import {
+  getCards,
+  putCard,
+  deleteCard,
+  setLoading,
+  setError,
+} from "../../features/cards/cardsSlice";
 import { Stack, Grid, Paper } from "@mui/material";
 import Card from "./Card";
 import AddCard from "./AddCard";
@@ -6,21 +15,6 @@ import axios from "axios";
 
 const TOKEN = import.meta.env.VITE_TOKEN;
 const KEY = import.meta.env.VITE_API_KEY;
-
-const initialState = {
-  allCards: [],
-};
-
-const reducer = (state, action) => {
-  switch (action.type) {
-    case "get":
-      return { allCards: action.payload };
-    case "post":
-      return { allCards: [...state.allCards, action.payload] };
-    case "delete":
-      return { allCards: [...action.payload] };
-  }
-};
 
 // Function to fetch cards for a specific list
 const fetchCards = async (listId) => {
@@ -30,7 +24,7 @@ const fetchCards = async (listId) => {
     );
     return response.data;
   } catch (error) {
-    console.log(error);
+    throw new Error(error);
   }
 };
 
@@ -43,6 +37,7 @@ const createCard = async (listId, cardName) => {
 
     return response.data;
   } catch (error) {
+    throw new Error(error);
     console.log(error);
   }
 };
@@ -60,43 +55,58 @@ const deleteCardById = async (cardId) => {
 };
 
 function CardsList({ listId }) {
-  const [state, dispatcher] = useReducer(reducer, initialState);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    fetchCards(listId).then((lists) => {
-      dispatcher({ type: "get", payload: lists });
-    });
+    fetchCards(listId)
+      .then((cards) => {
+        dispatch(getCards({ listId, cards }));
+        setLoading(false);
+        setError("");
+      })
+      .catch((error) => setError(error.message));
   }, []);
 
   const handleAddCard = (newCardText) => {
     if (newCardText.trim() !== "") {
       console.log("New  card text");
-      createCard(listId, newCardText).then((createdCard) => {
-        dispatcher({ type: "post", payload: createdCard });
-      });
+      createCard(listId, newCardText)
+        .then((createdCard) => {
+          dispatch(putCard({ listId, createdCard }));
+          setError("");
+          setLoading(false);
+        })
+        .catch((error) => {
+          setError(error.message);
+        });
     }
   };
 
   const handleDeleteCard = (cardId) => {
     deleteCardById(cardId).then((data) => {
-      const updatedCards = state.allCards.filter((card) => {
+      const updatedCards = allCards.filter((card) => {
         return card.id !== cardId;
       });
-      dispatcher({ type: "delete", payload: updatedCards });
+      dispatch(deleteCard({ listId, updatedCards }));
     });
   };
+
+  const allCards = useSelector((state) => state.cards.allCards[listId]);
+  const lists = useSelector((state) => state.cards.allCards);
 
   return (
     <Grid>
       <Stack>
-        {state.allCards.map((card) => {
-          return <Card key={card.id} card={card} onDelete={handleDeleteCard} />;
-        })}
+        {allCards &&
+          allCards.map((card) => {
+            return (
+              <Card key={card.id} card={card} onDelete={handleDeleteCard} />
+            );
+          })}
       </Stack>
       <Paper
         sx={{
           padding: 1.3,
-          // borderRadius: "0.8rem",
           backgroundColor: "#ebecf0",
           elevation: 0,
           border: "none",

@@ -1,5 +1,15 @@
-import React, { useEffect, useState, useReducer } from "react";
-import { Grid, Button, TextField, Stack, Paper } from "@mui/material";
+import React, { useEffect } from "react";
+
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getBoard,
+  getLists,
+  putList,
+  deleteList,
+  setLoading,
+  setError,
+} from "../../features/board/boardSlice";
+import { Grid, Stack, Paper } from "@mui/material";
 import { useParams } from "react-router-dom";
 import ListDisplay from "../lists/ListDisplay";
 import AddListItem from "./AddList";
@@ -7,26 +17,6 @@ import axios from "axios";
 
 const TOKEN = import.meta.env.VITE_TOKEN;
 const KEY = import.meta.env.VITE_API_KEY;
-
-const initialState = {
-  allLists: [],
-  board: {},
-};
-
-const reducer = (state, action) => {
-  switch (action.type) {
-    case "get":
-      return { ...state, allLists: action.payload };
-    case "post":
-      return { ...state, allLists: [...state.allLists, action.payload] };
-    case "delete":
-      return { ...state, allLists: action.payload };
-    case "board":
-      return { ...state, board: action.payload };
-    default:
-      return state;
-  }
-};
 
 const fetchBoardAndLists = async (boardId) => {
   try {
@@ -45,19 +35,23 @@ const fetchBoardAndLists = async (boardId) => {
     return { board: boardData, allLists: listsData };
   } catch (error) {
     console.log(error);
+    throw new Error(error);
   }
 };
 
 // Create a list
 const createList = async (boardId, name) => {
-  const response = await axios.post(
-    `https://api.trello.com/1/lists?name=${name}&idBoard=${boardId}&key=${KEY}&token=${TOKEN}`
-  );
-  const createdList = response.data;
+  try {
+    const response = await axios.post(
+      `https://api.trello.com/1/lists?name=${name}&idBoard=${boardId}&key=${KEY}&token=${TOKEN}`
+    );
+    const createdList = response.data;
+    console.log("created list");
 
-  // dispatcher({ type: "post", payload: createdList });
-
-  return createdList;
+    return createdList;
+  } catch (error) {
+    throw new Error(error);
+  }
 };
 
 // Delete a list by ID:
@@ -70,35 +64,55 @@ const deleteListById = async (id) => {
 
     return response;
   } catch (error) {
-    console.log(error);
+    throw new Error(error);
   }
 };
 
 function Board() {
   const { id } = useParams();
-
-  const [state, dispatcher] = useReducer(reducer, initialState);
+  const dispatch = useDispatch();
+  // const boardState = useSelector((state) => console.log(state.board));
 
   useEffect(() => {
-    fetchBoardAndLists(id).then((data) => {
-      dispatcher({ type: "board", payload: data.board });
-      dispatcher({ type: "get", payload: data.allLists });
-    });
+    fetchBoardAndLists(id)
+      .then((data) => {
+        dispatch(getBoard(data.board));
+        dispatch(getLists(data.allLists));
+        dispatch(setLoading(false));
+      })
+      .catch((error) => {
+        setError(error.message);
+      });
   }, []);
 
+  const allLists = useSelector((state) => state.board.allLists);
+  const board = useSelector((state) => state.board.board);
+
   const handleDeleteList = (listId) => {
-    deleteListById(listId).then((response) => {
-      const updatedList = state.allLists.filter((list) => {
-        return list.id !== listId;
+    dispatch(setLoading(true));
+    deleteListById(listId)
+      .then((response) => {
+        setLoading(false);
+        setError("");
+        const updatedList = allLists.filter((list) => {
+          return list.id !== listId;
+        });
+        dispatch(deleteList(updatedList));
+      })
+      .catch((error) => {
+        setError(error.message);
       });
-      dispatcher({ type: "delete", payload: updatedList });
-    });
   };
 
   const handleCreateList = (id, newListName) => {
-    createList(id, newListName).then((list) => {
-      dispatcher({ type: "post", payload: list });
-    });
+    createList(id, newListName)
+      .then((list) => {
+        dispatch(putList(list));
+        dispatch(setLoading(false));
+      })
+      .catch((error) => {
+        setError(error.message);
+      });
   };
 
   return (
@@ -107,18 +121,16 @@ function Board() {
         overflowX: "auto",
         scrollBehavior: "smooth",
         minHeight: "94vh",
-        backgroundColor: state.board.prefs
-          ? state.board.prefs.backgroundColor
-          : "",
-        backgroundImage: state.board.prefs
-          ? `url(${state.board.prefs.backgroundImage})`
+        backgroundColor: board.prefs ? board.prefs.backgroundColor : "",
+        backgroundImage: board.prefs
+          ? `url(${board.prefs.backgroundImage})`
           : undefined,
         backgroundSize: "cover",
       }}
     >
       <Stack direction="row" width="fit-content" gap={2} p={2}>
-        {state.allLists &&
-          state.allLists.map((list) => (
+        {allLists &&
+          allLists.map((list) => (
             <ListDisplay
               key={list.id}
               list={list}

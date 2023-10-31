@@ -3,8 +3,6 @@ import Layout from "./components/layout/Layout";
 import Boards from "./components/boards/Boards";
 import Board from "./components/board/Board";
 
-import "./App.css";
-
 function App() {
   return (
     <BrowserRouter>
