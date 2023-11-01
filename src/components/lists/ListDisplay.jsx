@@ -1,6 +1,6 @@
 import React from "react";
 import CardsList from "../cards/CardsList";
-import { Stack, Paper, Typography, Box, IconButton } from "@mui/material";
+import { Paper, Typography, Box, IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 function ListDisplay({ list, onDeleteList }) {

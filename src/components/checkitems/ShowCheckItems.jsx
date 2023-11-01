@@ -1,4 +1,5 @@
 import React from "react";
+import { useErrorBoundary } from "react-error-boundary";
 
 import axios from "axios";
 import {
@@ -10,6 +11,19 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
+const updateCheckItem = async (cardId, idCheckItem, state) => {
+  try {
+    const TOKEN = import.meta.env.VITE_TOKEN;
+    const KEY = import.meta.env.VITE_API_KEY;
+    const response = await axios.put(
+      `https://api.trello.com/1/cards/${cardId}/checkItem/${idCheckItem}?key=${KEY}&token=${TOKEN}&state=${state}`
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 function CheckItems({
   cardId,
   checkItems,
@@ -17,25 +31,18 @@ function CheckItems({
   handleCheckItemDeletion,
   checklistId,
 }) {
-  const updateCheckItem = async (cardId, idCheckItem, state) => {
-    const TOKEN = import.meta.env.VITE_TOKEN;
-    const KEY = import.meta.env.VITE_API_KEY;
-    const response = await axios.put(
-      `https://api.trello.com/1/cards/${cardId}/checkItem/${idCheckItem}?key=${KEY}&token=${TOKEN}&state=${state}`
-    );
-    return response.data;
-  };
-
+  const { showBoundary } = useErrorBoundary();
   const handleCheck = (e) => {
     const state = e.target.checked ? "complete" : "incomplete";
     const cardId = e.target.closest(".check-item").getAttribute("data-idcard");
     const idCheckItem = e.target
       .closest(".check-item")
       .getAttribute("data-iditem");
-
-    updateCheckItem(cardId, idCheckItem, state).then((data) => {
-      onItemToggle(data.idChecklist);
-    });
+    updateCheckItem(cardId, idCheckItem, state)
+      .then((data) => {
+        onItemToggle(data.idChecklist);
+      })
+      .catch((error) => showBoundary(error));
   };
 
   return (

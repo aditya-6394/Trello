@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { useErrorBoundary } from "react-error-boundary";
 
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -56,6 +57,7 @@ const deleteCardById = async (cardId) => {
 
 function CardsList({ listId }) {
   const dispatch = useDispatch();
+  const { showBoundary } = useErrorBoundary();
 
   useEffect(() => {
     fetchCards(listId)
@@ -64,7 +66,10 @@ function CardsList({ listId }) {
         setLoading(false);
         setError("");
       })
-      .catch((error) => setError(error.message));
+      .catch((error) => {
+        showBoundary(error);
+        setError(error.message);
+      });
   }, []);
 
   const handleAddCard = (newCardText) => {
@@ -77,22 +82,24 @@ function CardsList({ listId }) {
           setLoading(false);
         })
         .catch((error) => {
+          showBoundary(error);
           setError(error.message);
         });
     }
   };
 
   const handleDeleteCard = (cardId) => {
-    deleteCardById(cardId).then((data) => {
-      const updatedCards = allCards.filter((card) => {
-        return card.id !== cardId;
-      });
-      dispatch(deleteCard({ listId, updatedCards }));
-    });
+    deleteCardById(cardId)
+      .then((data) => {
+        const updatedCards = allCards.filter((card) => {
+          return card.id !== cardId;
+        });
+        dispatch(deleteCard({ listId, updatedCards }));
+      })
+      .catch((error) => showBoundary(error));
   };
 
   const allCards = useSelector((state) => state.cards.allCards[listId]);
-  const lists = useSelector((state) => state.cards.allCards);
 
   return (
     <Grid>

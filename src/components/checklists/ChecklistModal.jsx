@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useErrorBoundary } from "react-error-boundary";
 import { useSelector, useDispatch } from "react-redux";
 import {
   getChecklists,
@@ -24,7 +25,7 @@ const fetchChecklists = async (cardId) => {
     );
     return response.data;
   } catch (error) {
-    console.error("Error fetching checklists:", error);
+    throw new Error(error);
   }
 };
 
@@ -40,7 +41,7 @@ const createChecklist = async (cardId, name) => {
     );
     return response.data;
   } catch (error) {
-    console.error("Error creating checklist:", error);
+    throw new Error(error);
   }
 };
 
@@ -58,6 +59,7 @@ const deleteChecklistById = async (checklistId) => {
 
 function ChecklistModal({ cardId, isOpen, onClose }) {
   const dispatch = useDispatch();
+  const { showBoundary } = useErrorBoundary();
   const checklists = useSelector(
     (state) => state.checklists.checklists[cardId]
   );
@@ -73,6 +75,7 @@ function ChecklistModal({ cardId, isOpen, onClose }) {
           dispatch(getChecklists({ cardId, checkLists }));
         })
         .catch((error) => {
+          showBoundary(error);
           setError(error.message);
         });
     }
@@ -87,21 +90,23 @@ function ChecklistModal({ cardId, isOpen, onClose }) {
   };
 
   const handleCreateChecklist = (newChecklistName) => {
-    createChecklist(cardId, newChecklistName).then((createdChecklist) => {
-      dispatch(putChecklist({ cardId, createdChecklist }));
-    });
+    createChecklist(cardId, newChecklistName)
+      .then((createdChecklist) => {
+        dispatch(putChecklist({ cardId, createdChecklist }));
+      })
+      .catch((error) => showBoundary(error));
   };
 
   const handleDeleteChecklist = (checklistId) => {
-    deleteChecklistById(checklistId).then(() => {
-      const updatedList = checklists.filter((checklist) => {
-        return checklist.id !== checklistId;
-      });
-      dispatch(deleteChecklist({ cardId, updatedList }));
-    });
+    deleteChecklistById(checklistId)
+      .then(() => {
+        const updatedList = checklists.filter((checklist) => {
+          return checklist.id !== checklistId;
+        });
+        dispatch(deleteChecklist({ cardId, updatedList }));
+      })
+      .catch((error) => showBoundary(error));
   };
-
-
 
   return (
     <Dialog open={isOpen} onClose={onClose} maxWidth="md" fullWidth>

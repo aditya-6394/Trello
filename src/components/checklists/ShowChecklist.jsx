@@ -2,6 +2,7 @@ import React from "react";
 import axios from "axios";
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useErrorBoundary } from "react-error-boundary";
 import {
   getCheckitems,
   putCheckitem,
@@ -43,7 +44,6 @@ const createCheckItem = async (checklistId, name) => {
     return response.data;
   } catch (error) {
     throw new Error(error);
-    console.error("Error creating check item:", error);
   }
 };
 
@@ -63,6 +63,7 @@ const deleteCheckItemById = async (checklistId, checkItemId) => {
 
 function ShowChecklist({ checklist, deleteChecklistById }) {
   const dispatch = useDispatch();
+  const { showBoundary } = useErrorBoundary();
 
   useEffect(() => {
     fetchCheckItems(checklist.id)
@@ -73,18 +74,23 @@ function ShowChecklist({ checklist, deleteChecklistById }) {
         setLoading(false);
         setError("");
       })
-      .catch((error) => setError(error.message));
+      .catch((error) => {
+        showBoundary(error);
+        setError(error.message);
+      });
   }, []);
 
   const handleItemToggle = (idChecklist) => {
-    fetchCheckItems(idChecklist).then((checkitems) => {
-      dispatch(
-        updateCheckitems({
-          checklistId: idChecklist,
-          updatedCheckItemsList: checkitems,
-        })
-      );
-    });
+    fetchCheckItems(idChecklist)
+      .then((checkitems) => {
+        dispatch(
+          updateCheckitems({
+            checklistId: idChecklist,
+            updatedCheckItemsList: checkitems,
+          })
+        );
+      })
+      .catch((error) => showBoundary(error));
   };
 
   const handleCheckItemCreation = (checklistId, name) => {
@@ -94,16 +100,21 @@ function ShowChecklist({ checklist, deleteChecklistById }) {
         setLoading(false);
         setError("");
       })
-      .catch((error) => setError(error.message));
+      .catch((error) => {
+        setError(error.message);
+        showBoundary(error);
+      });
   };
 
   const handleCheckItemDeletion = (checklistId, checkItemId) => {
-    deleteCheckItemById(checklistId, checkItemId).then((data) => {
-      const updatedCheckItemsList = checkItems.filter((item) => {
-        return item.id !== checkItemId;
-      });
-      dispatch(deleteCheckitem({ checklistId, updatedCheckItemsList }));
-    });
+    deleteCheckItemById(checklistId, checkItemId)
+      .then((data) => {
+        const updatedCheckItemsList = checkItems.filter((item) => {
+          return item.id !== checkItemId;
+        });
+        dispatch(deleteCheckitem({ checklistId, updatedCheckItemsList }));
+      })
+      .catch((error) => showBoundary(error));
   };
 
   const checkItems = useSelector(

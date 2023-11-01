@@ -1,7 +1,10 @@
 import React, { useEffect } from "react";
+import { useErrorBoundary } from "react-error-boundary";
+
 import { Grid, Box, Typography, Container } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 import FormDialog from "./BoardCreationDialog";
+import { useNavigate } from "react-router-dom";
+
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -28,7 +31,7 @@ async function getAllBoards() {
 function Boards() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const { showBoundary } = useErrorBoundary();
   const [open, setOpen] = React.useState(false);
 
   const handleClickOpen = () => {
@@ -47,6 +50,7 @@ function Boards() {
       })
       .catch((error) => {
         setError(error);
+        showBoundary(error);
       });
   }, []);
 

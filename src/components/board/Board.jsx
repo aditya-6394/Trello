@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { useErrorBoundary } from "react-error-boundary";
 
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -71,7 +72,7 @@ const deleteListById = async (id) => {
 function Board() {
   const { id } = useParams();
   const dispatch = useDispatch();
-  // const boardState = useSelector((state) => console.log(state.board));
+  const { showBoundary } = useErrorBoundary();
 
   useEffect(() => {
     fetchBoardAndLists(id)
@@ -81,6 +82,7 @@ function Board() {
         dispatch(setLoading(false));
       })
       .catch((error) => {
+        showBoundary(error);
         setError(error.message);
       });
   }, []);
