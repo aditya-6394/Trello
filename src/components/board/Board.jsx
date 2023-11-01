@@ -14,6 +14,8 @@ import { Grid, Stack, Paper } from "@mui/material";
 import { useParams } from "react-router-dom";
 import ListDisplay from "../lists/ListDisplay";
 import AddListItem from "./AddList";
+import CircularIndeterminate from "../errorAndLoading/Loading";
+
 import axios from "axios";
 
 const TOKEN = import.meta.env.VITE_TOKEN;
@@ -115,44 +117,50 @@ function Board() {
         setError(error.message);
       });
   };
+  const loading = useSelector((state) => state.board.loading);
 
   return (
-    <Grid
-      sx={{
-        overflowX: "auto",
-        scrollBehavior: "smooth",
-        minHeight: "94vh",
-        backgroundColor: board.prefs ? board.prefs.backgroundColor : "",
-        backgroundImage: board.prefs
-          ? `url(${board.prefs.backgroundImage})`
-          : undefined,
-        backgroundSize: "cover",
-      }}
-    >
-      <Stack direction="row" width="fit-content" gap={2} p={2}>
-        {allLists &&
-          allLists.map((list) => (
-            <ListDisplay
-              key={list.id}
-              list={list}
-              onDeleteList={handleDeleteList}
-            />
-          ))}
-
-        <Paper
-          elevation={2}
+    <>
+      {loading && <CircularIndeterminate />}
+      {!loading && (
+        <Grid
           sx={{
-            width: "272px",
-            borderRadius: 2.5,
-            padding: 2,
-            height: "fit-content",
-            backgroundColor: "#ebecf0",
+            overflowX: "auto",
+            scrollBehavior: "smooth",
+            minHeight: "94vh",
+            backgroundColor: board.prefs ? board.prefs.backgroundColor : "",
+            backgroundImage: board.prefs
+              ? `url(${board.prefs.backgroundImage})`
+              : undefined,
+            backgroundSize: "cover",
           }}
         >
-          <AddListItem id={id} handleCreateList={handleCreateList} />
-        </Paper>
-      </Stack>
-    </Grid>
+          <Stack direction="row" width="fit-content" gap={2} p={2}>
+            {allLists &&
+              allLists.map((list) => (
+                <ListDisplay
+                  key={list.id}
+                  list={list}
+                  onDeleteList={handleDeleteList}
+                />
+              ))}
+
+            <Paper
+              elevation={2}
+              sx={{
+                width: "272px",
+                borderRadius: 2.5,
+                padding: 2,
+                height: "fit-content",
+                backgroundColor: "#ebecf0",
+              }}
+            >
+              <AddListItem id={id} handleCreateList={handleCreateList} />
+            </Paper>
+          </Stack>
+        </Grid>
+      )}
+    </>
   );
 }
 

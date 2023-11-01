@@ -82,7 +82,6 @@ function Boards() {
   };
 
   const loading = useSelector((state) => state.boards.loading);
-  console.log(loading);
 
   return (
     <Container>
