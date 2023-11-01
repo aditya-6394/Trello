@@ -25,8 +25,6 @@ LinearProgressWithLabel.propTypes = {
 
 function LinearWithValueLabel({ id, totalItems, checkedItems }) {
   const calculateProgress = () => {
-    console.log(totalItems);
-    console.log(checkedItems);
     return totalItems !== 0 ? (checkedItems / totalItems) * 100 : 0;
   };
 

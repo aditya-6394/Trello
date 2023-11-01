@@ -1,6 +1,15 @@
 import React from "react";
 import axios from "axios";
-import { useEffect, useReducer } from "react";
+import { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  getCheckitems,
+  putCheckitem,
+  deleteCheckitem,
+  setError,
+  setLoading,
+  updateCheckitems,
+} from "../../features/checkitems/checkitemsSlice";
 
 import { List, ListItem, ListItemText, IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -20,6 +29,7 @@ const fetchCheckItems = async (checklistId) => {
     return response.data;
   } catch (error) {
     console.error("Error fetching check items:", error);
+    throw new Error(error);
   }
 };
 
@@ -32,6 +42,7 @@ const createCheckItem = async (checklistId, name) => {
 
     return response.data;
   } catch (error) {
+    throw new Error(error);
     console.error("Error creating check item:", error);
   }
 };
@@ -46,72 +57,68 @@ const deleteCheckItemById = async (checklistId, checkItemId) => {
     return response;
   } catch (error) {
     console.error("Error deleting check item:", error);
-  }
-};
-
-const inititalState = {
-  checkItems: [],
-};
-
-const reducer = (state, action) => {
-  console.log(action.payload);
-  switch (action.type) {
-    case "fetch":
-      return { checkItems: action.payload };
-    case "update":
-      return { checkItems: [...action.payload] };
-    case "create":
-      return { checkItems: [...state.checkItems, action.payload] };
-    case "delete":
-      return { checkItems: [...action.payload] };
-    default:
-      return state;
+    throw new Error(error);
   }
 };
 
 function ShowChecklist({ checklist, deleteChecklistById }) {
-  const [state, dispatch] = useReducer(reducer, inititalState);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    fetchCheckItems(checklist.id).then((data) => {
-      dispatch({ type: "fetch", payload: data });
-    });
+    fetchCheckItems(checklist.id)
+      .then((data) => {
+        dispatch(
+          getCheckitems({ checklistId: checklist.id, checkitems: data })
+        );
+        setLoading(false);
+        setError("");
+      })
+      .catch((error) => setError(error.message));
   }, []);
 
-  const handleItemToggle = (itemId) => {
-    const updatedItems = state.checkItems.map((item) => {
-      if (item.id == itemId) {
-        item.state = item.state === "complete" ? "incomplete" : "complete";
-      }
-      return item;
+  const handleItemToggle = (idChecklist) => {
+    fetchCheckItems(idChecklist).then((checkitems) => {
+      dispatch(
+        updateCheckitems({
+          checklistId: idChecklist,
+          updatedCheckItemsList: checkitems,
+        })
+      );
     });
-
-    dispatch({ type: "update", payload: updatedItems });
   };
 
   const handleCheckItemCreation = (checklistId, name) => {
-    createCheckItem(checklistId, name).then((item) => {
-      dispatch({ type: "create", payload: item });
-    });
+    createCheckItem(checklistId, name)
+      .then((checkitem) => {
+        dispatch(putCheckitem({ checklistId, checkitem }));
+        setLoading(false);
+        setError("");
+      })
+      .catch((error) => setError(error.message));
   };
 
   const handleCheckItemDeletion = (checklistId, checkItemId) => {
     deleteCheckItemById(checklistId, checkItemId).then((data) => {
-      const updatedCheckItemsList = state.checkItems.filter((item) => {
+      const updatedCheckItemsList = checkItems.filter((item) => {
         return item.id !== checkItemId;
       });
-      dispatch({ type: "delete", payload: updatedCheckItemsList });
+      dispatch(deleteCheckitem({ checklistId, updatedCheckItemsList }));
     });
   };
 
-  const checkedItems = state.checkItems.filter(
-    (item) => item.state == "complete"
-  ).length;
+  const checkItems = useSelector(
+    (state) => state.checkItems.checkItems[checklist.id]
+  );
 
-  const totalItems = state.checkItems.length;
+  const allCheckItems = useSelector((state) => state.checkItems.checkItems);
+
+  const checkedItems =
+    checkItems && checkItems.filter((item) => item.state == "complete").length;
+
+  const totalItems = checkItems && checkItems.length;
 
   return (
-    state.checkItems && (
+    checkItems && (
       <div key={checklist.id}>
         <List>
           <ListItem>
@@ -130,9 +137,9 @@ function ShowChecklist({ checklist, deleteChecklistById }) {
           </ListItem>
 
           <ListItem>
-            {state.checkItems && (
+            {checkItems && (
               <CheckItems
-                checkItems={state.checkItems}
+                checkItems={checkItems}
                 onItemToggle={handleItemToggle}
                 cardId={checklist.idCard}
                 checklistId={checklist.id}

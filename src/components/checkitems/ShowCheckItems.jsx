@@ -27,15 +27,14 @@ function CheckItems({
   };
 
   const handleCheck = (e) => {
-    const state = e.target.checked ? "incomplete" : "complete";
+    const state = e.target.checked ? "complete" : "incomplete";
     const cardId = e.target.closest(".check-item").getAttribute("data-idcard");
     const idCheckItem = e.target
       .closest(".check-item")
       .getAttribute("data-iditem");
 
     updateCheckItem(cardId, idCheckItem, state).then((data) => {
-      console.log(data);
-      onItemToggle(idCheckItem);
+      onItemToggle(data.idChecklist);
     });
   };
 

@@ -12,7 +12,6 @@ function AddChecklistItem({ checklistId, createCheckItem }) {
 
   const handleAddItem = () => {
     if (newItemText.trim() !== "") {
-      console.log("From add item page");
       createCheckItem(checklistId, newItemText);
       setNewItemText("");
       toggleAdding();
