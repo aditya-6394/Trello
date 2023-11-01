@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { TextField, Button, Typography, Box } from "@mui/material";
+import { TextField, Button, Typography, Box, IconButton } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 
 function AddCard({ handleAddElement }) {
   const [isAdding, setIsAdding] = useState(false);
@@ -16,12 +17,13 @@ function AddCard({ handleAddElement }) {
   return (
     <Box>
       {isAdding ? (
-        <Box>
+        <Box sx={{ width: "100%" }}>
           <TextField
             label="Enter card title"
             variant="outlined"
             value={newCardText}
             onChange={(e) => setNewCardText(e.target.value)}
+            sx={{ width: "100%", marginBottom: 1 }}
           />
           <Button
             variant="contained"
@@ -30,9 +32,9 @@ function AddCard({ handleAddElement }) {
           >
             Add Card
           </Button>
-          <Typography variant="body2" onClick={() => setIsAdding(false)}>
-            Close
-          </Typography>
+          <IconButton onClick={() => setIsAdding(false)}>
+            <CloseIcon />
+          </IconButton>
         </Box>
       ) : (
         <Typography variant="body2" onClick={() => setIsAdding(true)}>

@@ -1,12 +1,22 @@
 import React from "react";
 import { ErrorBoundary } from "react-error-boundary";
+import { Box, Typography, Grid } from "@mui/material";
 
 function ErrorFallback({ error }) {
   return (
-    <div>
-      <h2>Something went wrong</h2>
-      <p>{error.message}</p>
-    </div>
+    <Grid
+      sx={{
+        height: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <Box>
+        <Typography variant="h2">Something went wrong</Typography>
+        <Typography variant="h5">{error.message}</Typography>
+      </Box>
+    </Grid>
   );
 }
 

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, TextField } from "@mui/material";
+import { Button, TextField, Box, Stack } from "@mui/material";
 
 function AddChecklistItem({ checklistId, createCheckItem }) {
   const [isAdding, setIsAdding] = useState(false);
@@ -19,9 +19,9 @@ function AddChecklistItem({ checklistId, createCheckItem }) {
   };
 
   return (
-    <div>
+    <Stack>
       {isAdding ? (
-        <div>
+        <Box>
           <TextField
             placeholder="Add an item"
             value={newItemText}
@@ -33,13 +33,13 @@ function AddChecklistItem({ checklistId, createCheckItem }) {
           <Button variant="contained" color="secondary" onClick={toggleAdding}>
             Cancel
           </Button>
-        </div>
+        </Box>
       ) : (
         <Button variant="outlined" onClick={toggleAdding}>
           Add Item
         </Button>
       )}
-    </div>
+    </Stack>
   );
 }
 
