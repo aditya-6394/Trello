@@ -3,6 +3,9 @@ import { useErrorBoundary } from "react-error-boundary";
 
 import { Grid, Box, Typography, Container } from "@mui/material";
 import FormDialog from "./BoardCreationDialog";
+import CreateBoardBox from "./CreateBoardBox";
+import CircularIndeterminate from "../errorAndLoading/Loading";
+
 import { useNavigate } from "react-router-dom";
 
 import axios from "axios";
@@ -78,64 +81,61 @@ function Boards() {
     }
   };
 
+  const loading = useSelector((state) => state.boards.loading);
+  console.log(loading);
+
   return (
     <Container>
-      <Grid container sx={{ marginTop: "2rem" }}>
-        {allBoards
-          ? allBoards.map((board, index) => {
-              return (
-                <Grid
-                  key={index}
-                  item
-                  xs={12}
-                  sm={6}
-                  md={4}
-                  lg={3}
-                  p={2}
-                  onClick={(e) => onClickHandler(e)}
-                >
-                  <Box
-                    id={board.id}
-                    className="board"
-                    height="100px"
-                    borderRadius={1}
-                    p={1}
-                    sx={{
-                      backgroundColor: board.prefs.backgroundColor,
-                      backgroundImage: `url('${board.prefs.backgroundImage}')`,
-                      "&:hover": { cursor: "pointer" },
-                    }}
-                  >
-                    <Typography variant="h6" color="white">
-                      {board.name}
-                    </Typography>
-                  </Box>
-                </Grid>
-              );
-            })
-          : null}
-        <Grid item sm={6} md={4} lg={3} xs={12} p={2}>
-          <Box
-            className="create-board"
-            height="100px"
-            borderRadius={1}
-            p={1}
-            sx={{ backgroundColor: "lightgray" }}
-            onClick={() => {
-              handleClickOpen();
-            }}
-          >
-            <Typography variant="body1">Create a new board</Typography>
-          </Box>
-        </Grid>
-      </Grid>
-      <FormDialog
-        handleClickOpen={handleClickOpen}
-        handleClose={handleClose}
-        open={open}
-        setOpen={setOpen}
-        createBoard={createBoard}
-      />
+      {loading && <CircularIndeterminate />}
+      {!loading && (
+        <Box>
+          <Grid container sx={{ marginTop: "2rem" }}>
+            {allBoards
+              ? allBoards.map((board, index) => {
+                  return (
+                    <Grid
+                      key={index}
+                      item
+                      xs={12}
+                      sm={6}
+                      md={4}
+                      lg={3}
+                      p={2}
+                      onClick={(e) => onClickHandler(e)}
+                    >
+                      <Box
+                        id={board.id}
+                        className="board"
+                        height="100px"
+                        borderRadius={1}
+                        p={1}
+                        sx={{
+                          backgroundColor: board.prefs.backgroundColor,
+                          backgroundImage: `url('${board.prefs.backgroundImage}')`,
+                          "&:hover": { cursor: "pointer" },
+                        }}
+                      >
+                        <Typography variant="h6" color="white">
+                          {board.name}
+                        </Typography>
+                      </Box>
+                    </Grid>
+                  );
+                })
+              : null}
+            <Grid item sm={6} md={4} lg={3} xs={12} p={2}>
+              <CreateBoardBox handleClickOpen={handleClickOpen} />
+            </Grid>
+          </Grid>
+          <FormDialog
+            handleClickOpen={handleClickOpen}
+            handleClose={handleClose}
+            open={open}
+            setOpen={setOpen}
+            createBoard={createBoard}
+          />
+        </Box>
+      )}
     </Container>
   );
 }

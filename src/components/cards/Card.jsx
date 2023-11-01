@@ -51,6 +51,7 @@ function Card({ card, onDelete }) {
           <DeleteIcon />
         </IconButton>
         <ChecklistModal
+          card={card}
           cardId={card.id}
           isOpen={isModalOpen}
           onClose={closeModal}

@@ -57,7 +57,7 @@ const deleteChecklistById = async (checklistId) => {
   }
 };
 
-function ChecklistModal({ cardId, isOpen, onClose }) {
+function ChecklistModal({ cardId, isOpen, onClose, card }) {
   const dispatch = useDispatch();
   const { showBoundary } = useErrorBoundary();
   const checklists = useSelector(
@@ -110,7 +110,7 @@ function ChecklistModal({ cardId, isOpen, onClose }) {
 
   return (
     <Dialog open={isOpen} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>Checklists for the Card</DialogTitle>
+      <DialogTitle>{card.name}</DialogTitle>
       {checklists && (
         <ShowAllChecklist
           checklists={checklists}

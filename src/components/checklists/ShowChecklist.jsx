@@ -12,7 +12,13 @@ import {
   updateCheckitems,
 } from "../../features/checkitems/checkitemsSlice";
 
-import { List, ListItem, ListItemText, IconButton } from "@mui/material";
+import {
+  List,
+  ListItem,
+  ListItemText,
+  IconButton,
+  Typography,
+} from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 import AddChecklistItem from "../checkitems/AddChecklistItem";

@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { Button, TextField, Typography } from "@mui/material";
+import {
+  Button,
+  Box,
+  Stack,
+  TextField,
+  Typography,
+  IconButton,
+} from "@mui/material";
+
+import CloseIcon from "@mui/icons-material/Close";
 
 function AddListItem({ id, handleCreateList }) {
   const [isAdding, setIsAdding] = useState(false);
@@ -20,19 +29,23 @@ function AddListItem({ id, handleCreateList }) {
   return (
     <div>
       {isAdding ? (
-        <div>
+        <Stack sx={{ rowGap: 1 }}>
           <TextField
+            width="100%"
             placeholder="Add an item"
             value={newItemText}
             onChange={(e) => setNewItemText(e.target.value)}
           />
-          <Button variant="contained" color="primary" onClick={handleAddItem}>
-            Add
-          </Button>
-          <Button variant="contained" color="secondary" onClick={toggleAdding}>
-            Cancel
-          </Button>
-        </div>
+
+          <Box>
+            <Button variant="contained" color="primary" onClick={handleAddItem}>
+              Add
+            </Button>
+            <IconButton onClick={toggleAdding}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        </Stack>
       ) : (
         <Typography variant="outlined" onClick={toggleAdding}>
           + Add List

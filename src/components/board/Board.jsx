@@ -35,7 +35,6 @@ const fetchBoardAndLists = async (boardId) => {
 
     return { board: boardData, allLists: listsData };
   } catch (error) {
-    console.log(error);
     throw new Error(error);
   }
 };
